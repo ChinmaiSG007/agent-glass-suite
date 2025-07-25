@@ -1,10 +1,16 @@
-import { Bell, User, Settings, Search, Menu } from 'lucide-react';
+import { Bell, User, Settings, Search, Menu, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from 'next-themes';
 
-export const HeaderNav = () => {
+interface HeaderNavProps {
+  onSettingsClick?: () => void;
+}
+
+export const HeaderNav = ({ onSettingsClick }: HeaderNavProps) => {
+  const { theme, setTheme } = useTheme();
   return (
     <header className="sticky top-0 z-50 w-full glass border-b border-glass-border/20">
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -30,6 +36,15 @@ export const HeaderNav = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="hover:bg-glass-light"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
+
             <Button variant="ghost" size="sm" className="relative hover:bg-glass-light">
               <Bell className="w-5 h-5" />
               <Badge variant="destructive" className="absolute -top-1 -right-1 w-2 h-2 p-0 bg-warning">
@@ -37,7 +52,7 @@ export const HeaderNav = () => {
               </Badge>
             </Button>
 
-            <Button variant="ghost" size="sm" className="hover:bg-glass-light">
+            <Button variant="ghost" size="sm" className="hover:bg-glass-light" onClick={onSettingsClick}>
               <Settings className="w-5 h-5" />
             </Button>
 

@@ -19,8 +19,7 @@ interface Agent {
 
 interface AgentCardProps {
   agent: Agent;
-  isSelected: boolean;
-  onToggle: () => void;
+  onLaunch: () => void;
   isRunning?: boolean;
 }
 
@@ -39,7 +38,7 @@ const colorConfig = {
   warning: 'border-warning/30 hover:border-warning/50'
 };
 
-export const AgentCard = ({ agent, isSelected, onToggle, isRunning = false }: AgentCardProps) => {
+export const AgentCard = ({ agent, onLaunch, isRunning = false }: AgentCardProps) => {
   const [progress, setProgress] = useState(0);
   const status = isRunning ? 'running' : agent.status;
   const Icon = agent.icon;
@@ -52,12 +51,11 @@ export const AgentCard = ({ agent, isSelected, onToggle, isRunning = false }: Ag
   return (
     <Card 
       className={`
-        glass hover:glass-light transition-all duration-300 cursor-pointer
-        ${isSelected ? `${colorConfig[agent.color]} glow-${agent.color}` : 'border-glass-border/20'}
-        ${isRunning ? 'animate-pulse-slow' : ''}
+        glass hover:glass-light transition-all duration-300
+        ${colorConfig[agent.color]}
+        ${isRunning ? 'animate-pulse-slow glow-primary' : ''}
         hover:scale-[1.02] hover:shadow-lg
       `}
-      onClick={onToggle}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -68,7 +66,7 @@ export const AgentCard = ({ agent, isSelected, onToggle, isRunning = false }: Ag
               ${agent.color === 'secondary' ? 'from-secondary to-secondary-glow' : ''}
               ${agent.color === 'success' ? 'from-success to-success-glow' : ''}
               ${agent.color === 'warning' ? 'from-warning to-warning-glow' : ''}
-              ${isSelected ? 'scale-110' : ''}
+              ${isRunning ? 'scale-110' : ''}
             `}>
               <Icon className="w-5 h-5 text-white" />
             </div>
@@ -116,30 +114,22 @@ export const AgentCard = ({ agent, isSelected, onToggle, isRunning = false }: Ag
         <div className="pt-2 border-t border-glass-border/20">
           <Button 
             size="sm" 
-            variant={isSelected ? "default" : "outline"}
-            className={`
-              w-full transition-all duration-300
-              ${isSelected ? `bg-gradient-to-r from-${agent.color} to-${agent.color}-glow hover:glow-${agent.color}` : 'glass-light'}
-            `}
             onClick={(e) => {
               e.stopPropagation();
-              onToggle();
+              onLaunch();
             }}
+            disabled={isRunning}
+            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:glow-primary transition-all duration-300"
           >
             {isRunning ? (
               <>
                 <Pause className="w-3 h-3 mr-2" />
                 Running...
               </>
-            ) : isSelected ? (
-              <>
-                <Play className="w-3 h-3 mr-2" />
-                Selected
-              </>
             ) : (
               <>
                 <Play className="w-3 h-3 mr-2" />
-                Select
+                Launch Agent
               </>
             )}
           </Button>

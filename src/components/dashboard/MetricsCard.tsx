@@ -45,7 +45,7 @@ export const MetricsCard = ({ title, value, change, icon: Icon, variant }: Metri
     <Card className={`
       glass-light hover:glass transition-all duration-300 
       ${config.border} hover:${config.glow}
-      hover:scale-[1.02] animate-float
+      hover:scale-[1.02]
     `}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">

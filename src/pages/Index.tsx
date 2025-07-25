@@ -7,6 +7,8 @@ import { AgentCard } from '@/components/dashboard/AgentCard';
 import { MetricsCard } from '@/components/dashboard/MetricsCard';
 import { WorkflowPanel } from '@/components/dashboard/WorkflowPanel';
 import { HeaderNav } from '@/components/dashboard/HeaderNav';
+import { WorkflowBuilder } from '@/components/dashboard/WorkflowBuilder';
+import { SettingsPanel } from '@/components/dashboard/SettingsPanel';
 import { ResultsChart } from '@/components/dashboard/ResultsChart';
 import heroImage from '@/assets/dashboard-hero.jpg';
 
@@ -74,18 +76,31 @@ const agents = [
 ];
 
 const Index = () => {
-  const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+  const [selectedAgents, setSelectedAgents] = useState<any[]>([]);
   const [workflowRunning, setWorkflowRunning] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [launchedAgents, setLaunchedAgents] = useState<string[]>([]);
 
   const toggleAgent = (agentId: string) => {
     setSelectedAgents(prev => 
-      prev.includes(agentId) 
-        ? prev.filter(id => id !== agentId)
-        : [...prev, agentId]
+      prev.some(a => a.id === agentId)
+        ? prev.filter(a => a.id !== agentId)
+        : [...prev, agents.find(a => a.id === agentId)!]
     );
   };
 
-  const runWorkflow = () => {
+  const launchAgent = (agentId: string) => {
+    setLaunchedAgents(prev => [...prev, agentId]);
+    // Simulate agent execution
+    setTimeout(() => {
+      setLaunchedAgents(prev => prev.filter(id => id !== agentId));
+    }, 3000);
+  };
+
+  const runWorkflow = (workflowAgents?: any[]) => {
+    if (workflowAgents) {
+      setSelectedAgents(workflowAgents);
+    }
     setWorkflowRunning(true);
     // Simulate workflow execution
     setTimeout(() => setWorkflowRunning(false), 5000);
@@ -93,7 +108,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HeaderNav />
+      <HeaderNav onSettingsClick={() => setShowSettings(true)} />
       
       {/* Hero Section */}
       <div className="relative overflow-hidden px-6 py-12">
@@ -176,7 +191,7 @@ const Index = () => {
                   Configure
                 </Button>
                 <Button 
-                  onClick={runWorkflow}
+                  onClick={() => runWorkflow()}
                   disabled={selectedAgents.length === 0 || workflowRunning}
                   className="bg-gradient-to-r from-primary to-primary-glow hover:glow-primary"
                 >
@@ -191,22 +206,25 @@ const Index = () => {
                 <AgentCard
                   key={agent.id}
                   agent={agent}
-                  isSelected={selectedAgents.includes(agent.id)}
-                  onToggle={() => toggleAgent(agent.id)}
-                  isRunning={workflowRunning && selectedAgents.includes(agent.id)}
+                  onLaunch={() => launchAgent(agent.id)}
+                  isRunning={launchedAgents.includes(agent.id)}
                 />
               ))}
             </div>
           </div>
 
           {/* Workflow Panel */}
-          <div className="lg:col-span-1">
-            <WorkflowPanel 
-              selectedAgents={selectedAgents.map(id => 
-                agents.find(agent => agent.id === id)!
-              )}
-              isRunning={workflowRunning}
+          <div className="lg:col-span-1 space-y-6">
+            <WorkflowBuilder 
+              agents={agents}
               onRunWorkflow={runWorkflow}
+              isRunning={workflowRunning}
+            />
+            
+            <WorkflowPanel 
+              selectedAgents={selectedAgents}
+              isRunning={workflowRunning}
+              onRunWorkflow={() => runWorkflow()}
             />
           </div>
         </div>
@@ -229,6 +247,28 @@ const Index = () => {
           <ResultsChart />
         </div>
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="glass border-primary/20 glow-primary w-full max-w-4xl max-h-[90vh]">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-gradient-primary">Settings</CardTitle>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setShowSettings(false)}
+                >
+                  ×
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <SettingsPanel />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
